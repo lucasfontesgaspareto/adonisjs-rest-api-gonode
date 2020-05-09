@@ -1,5 +1,7 @@
 'use strict'
 
+const Model = use('App/Models/Project')
+
 /** @typedef {import('@adonisjs/framework/src/Request')} Request */
 /** @typedef {import('@adonisjs/framework/src/Response')} Response */
 /** @typedef {import('@adonisjs/framework/src/View')} View */
@@ -18,6 +20,17 @@ class ProjectController {
    * @param {View} ctx.view
    */
   async index ({ request, response, view }) {
+    try {
+      const projects = await Model.query()
+        .with('user')
+        .fetch()
+
+      return projects
+    } catch (error) {
+      return response
+        .status(error.status)
+        .send({ error: { message: 'Erro ao buscar projeto' } })
+    }
   }
 
   /**
@@ -40,7 +53,18 @@ class ProjectController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async store ({ request, response }) {
+  async store ({ request, response, auth }) {
+    try {
+      const data = request.only(['title', 'description'])
+
+      const project = await Model.create({ ...data, user_id: auth.user.id })
+
+      return project
+    } catch (error) {
+      return response
+        .status(error.status)
+        .send({ error: { message: 'Erro ao criar projeto' } })
+    }
   }
 
   /**
@@ -53,6 +77,18 @@ class ProjectController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
+    try {
+      const project = await Model.findOrFail(params.id)
+
+      await project.load('user')
+      await project.load('tasks')
+
+      return project
+    } catch (error) {
+      return response
+        .status(error.status)
+        .send({ error: { message: 'Erro ao mostrar projeto' } })
+    }
   }
 
   /**
@@ -75,7 +111,21 @@ class ProjectController {
    * @param {Request} ctx.request
    * @param {Response} ctx.response
    */
-  async update ({ params, request, response }) {
+  async update ({ params, request, response, auth }) {
+    try {
+      const project = await Model.findOrFail(params.id)
+      const data = request.only(['title', 'description'])
+
+      project.merge(data)
+
+      await project.save()
+
+      return project
+    } catch (error) {
+      return response
+        .status(error.status)
+        .send({ error: { message: 'Erro ao alterar projeto' } })
+    }
   }
 
   /**
@@ -87,6 +137,14 @@ class ProjectController {
    * @param {Response} ctx.response
    */
   async destroy ({ params, request, response }) {
+    try {
+      const project = await Model.findOrFail(params.id)
+      await project.delete()
+    } catch (error) {
+      return response
+        .status(error.status)
+        .send({ error: { message: 'Erro ao excluir projeto' } })
+    }
   }
 }
 
