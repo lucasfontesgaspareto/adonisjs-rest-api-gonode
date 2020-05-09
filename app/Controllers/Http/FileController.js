@@ -83,6 +83,14 @@ class FileController {
    * @param {View} ctx.view
    */
   async show ({ params, request, response, view }) {
+    try {
+      const file = await Model.findOrFail(params.id)
+      return response.download(Helpers.tmpPath(`uploads/${file.file}`))
+    } catch (error) {
+      return response
+        .status(error.status)
+        .send({ error: { message: 'Erro ao carregar arquivo' } })
+    }
   }
 
   /**
