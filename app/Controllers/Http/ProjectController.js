@@ -29,7 +29,7 @@ class ProjectController {
     } catch (error) {
       return response
         .status(error.status)
-        .send({ error: { message: 'Erro ao buscar projeto' } })
+        .send({ error: { message: 'Erro ao buscar projetos' } })
     }
   }
 
@@ -87,7 +87,7 @@ class ProjectController {
     } catch (error) {
       return response
         .status(error.status)
-        .send({ error: { message: 'Erro ao mostrar projeto' } })
+        .send({ error: { message: 'Erro ao buscar projeto' } })
     }
   }
 
