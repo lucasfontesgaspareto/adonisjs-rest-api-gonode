@@ -21,9 +21,16 @@ class ProjectController {
    */
   async index ({ request, response, view }) {
     try {
+      let { page } = request.get()
+
+      // not allow negative or zero number or is not a number value
+      if (page <= 0 || isNaN(page)) {
+        page = 1
+      }
+
       const projects = await Model.query()
         .with('user')
-        .fetch()
+        .paginate(page)
 
       return projects
     } catch (error) {
