@@ -41,4 +41,3 @@ class NewTaskMail {
 }
 
 module.exports = NewTaskMail
-
